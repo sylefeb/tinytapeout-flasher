@@ -22,7 +22,7 @@ def spi_cpha1():
     pull(ifempty)            .side(0x0)
     out(pins, 1)             .side(0x1).delay(1)
     in_(pins, 1)             .side(0x0)
-    
+
 class PIOSPI:
 
     def __init__(self, sm_id, pin_mosi, pin_miso, pin_sck, cpha=False, cpol=False, freq=1000000):
@@ -75,7 +75,7 @@ class PIOSPI:
 
         while self._dma_read.active():
             pass
-        
+
     @micropython.native
     def read(self, n, write=0):
         read_buf = bytearray(n)
@@ -111,7 +111,7 @@ class PIOSPI:
             ),
             trigger = True
         )
-        
+
         while self._dma_read.active():
             pass
 
@@ -226,7 +226,7 @@ class SPIFlash:
             self.program_page(page_address + page_offset, chunk)
             offset += chunk_size
 
-    def program_sectors(self, start_address, verify=True):
+    def program_sectors(self, start_address, verify=True, enQSPIAfter=False):
         addr = start_address
         gc.collect()
         verify_buffer = bytearray(1)
@@ -261,6 +261,11 @@ class SPIFlash:
         finally:
             micropython.kbd_intr(3)
         print(f"flash_prog=ok")
+        if enQSPIAfter:
+          print(f"<< switching to QPI: power cycle to flash again >>")
+          self.cs(0)
+          self.spi.write(b"\x35")
+          self.cs(1)
 
     @micropython.native
     def read_data_into(self, address, rdata):

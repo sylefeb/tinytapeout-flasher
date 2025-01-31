@@ -158,6 +158,7 @@ export class TTBoardDevice extends EventTarget {
   async programFlash(
     offset: number,
     data: ArrayBufferLike,
+    qspiAfter: boolean,
     onProgress?: (written: number, total: number) => void,
   ) {
     const lineListener = this.addLineListener((line) => {
@@ -178,7 +179,8 @@ export class TTBoardDevice extends EventTarget {
       const fileData = new Uint8Array(data);
       const startOffset = `0x${offset.toString(16)}`;
       const flashProgPromise = waitForFlashProg();
-      await this.sendCommand(`flash.program_sectors(${startOffset})`);
+      const enQSPIAfter = qspiAfter ? 'True' : 'False';
+      await this.sendCommand(`flash.program_sectors(${startOffset},True,${enQSPIAfter})`);
       await flashProgPromise;
       for (let i = 0; i < fileData.length; i += sectorSize) {
         // measured transport speed: 92kb/sec

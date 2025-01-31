@@ -17,7 +17,9 @@ import {
   TableRow,
   TextField,
   Typography,
+  Checkbox,
 } from '@suid/material';
+
 import { createSignal, For, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { presets } from '~/config/presets';
@@ -41,6 +43,7 @@ interface IFileFlashStatus {
 
 export function FlashPanel(props: IReplPanelProps) {
   let fileInput: HTMLInputElement | undefined;
+  let qspiAfter: HTMLInputElement | undefined;
   const [selectedFirmware, setSelectedFirmware] = createSignal('0');
   const [flashOffset, setFlashOffset] = createSignal(0);
   const [programming, setProgramming] = createSignal(false);
@@ -69,7 +72,13 @@ export function FlashPanel(props: IReplPanelProps) {
         }
         const buffer = await file.arrayBuffer();
         setCustomSize(buffer.byteLength);
-        await props.device.programFlash(flashOffset(), buffer, (progress) => {
+        let enqspi: boolean = false;
+        if (qspiAfter) {
+          if (qspiAfter.checked) {
+            enqspi = qspiAfter.checked;
+          }
+        }
+        await props.device.programFlash(flashOffset(), buffer, enqspi, (progress) => {
           setCustomProgress(progress);
         });
         return;
@@ -200,7 +209,6 @@ export function FlashPanel(props: IReplPanelProps) {
               sx={{ height: 12, width: 140 }}
               value={(customProgress() / customSize()) * 100}
             />
-
             <Typography>
               {toKB(customProgress())} / {toKB(customSize())} kB
             </Typography>
@@ -209,6 +217,14 @@ export function FlashPanel(props: IReplPanelProps) {
         <Show when={customProgress() > 0 && customProgress() === customSize()}>
           <Typography>✅ Flashing complete</Typography>
         </Show>
+        <Checkbox
+          ref={qspiAfter}
+          onChange={(e) => {
+            qspiAfter = e.target;
+          }}
+        >
+          Switch to QSPI after flashing (requires power cycle to flash again)
+        </Checkbox>
       </Show>
       <Button variant="contained" onClick={doFlash} disabled={programming()}>
         Flash
