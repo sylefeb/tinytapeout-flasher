@@ -59,6 +59,8 @@ export function FlashPanel(props: IReplPanelProps) {
     }
   };
 
+  setSelectedFirmware(CUSTOM_FIRMWARE);
+
   const doFlash = async () => {
     try {
       setProgramming(true);
@@ -222,6 +224,7 @@ export function FlashPanel(props: IReplPanelProps) {
           onChange={(e) => {
             qspiAfter = e.target;
           }}
+          defaultChecked
         >
           Switch to QSPI after flashing (requires power cycle to flash again)
         </Checkbox>
