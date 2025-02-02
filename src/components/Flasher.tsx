@@ -59,8 +59,6 @@ export function FlashPanel(props: IReplPanelProps) {
     }
   };
 
-  setSelectedFirmware(CUSTOM_FIRMWARE);
-
   const doFlash = async () => {
     try {
       setProgramming(true);
@@ -106,10 +104,13 @@ export function FlashPanel(props: IReplPanelProps) {
         updateFileStatus(file.name, 'Downloaded');
         updateFileStatus(file.name, { total: buffer.byteLength });
       }
-
+      let enqspi: boolean = false;
+      if (preset.qspiAfter) {
+        enqspi = true;
+      }
       for (const { name, offset, data } of fileData) {
         updateFileStatus(name, 'Flashing...');
-        await props.device.programFlash(offset, data, (progress) => {
+        await props.device.programFlash(offset, data, enqspi, (progress) => {
           updateFileStatus(name, { written: progress, flashing: true });
         });
         updateFileStatus(name, {

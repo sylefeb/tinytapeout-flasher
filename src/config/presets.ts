@@ -17,4 +17,10 @@ export const presets = [
     baseUrl: 'https://tt.rebel-lion.uk/',
     files: [{ offset: 0, name: 'tt07-badapple640x480.bin' }],
   },
+  {
+    name: 'Explorer terrain data (TT07)',
+    baseUrl: 'https://sylefeb.github.io/tt07-explorer/',
+    files: [{ offset: 0, name: 'tt07-explorer.data' }],
+    qspiAfter: 1,
+  },
 ];
